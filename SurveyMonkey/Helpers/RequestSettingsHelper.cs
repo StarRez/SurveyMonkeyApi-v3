@@ -38,11 +38,24 @@ namespace SurveyMonkey.Helpers
                     {
                         output.Add(PropertyCasingHelper.CamelToSnake(property.Name), ((List<long>)property.GetValue(obj, null)).ConvertAll(x => x.ToString()));
                     }
+                    else if (underlyingType.IsGenericType && !underlyingType.GetGenericArguments()[0].UnderlyingSystemType.IsPrimitive && underlyingType.GetGenericArguments()[0].UnderlyingSystemType != typeof(string))
+                    {
+                        var coll = (System.Collections.IEnumerable)property.GetValue(obj, null);
+
+                        List<RequestData> nestedOutput = new List<RequestData>();
+
+                        foreach (var item in coll)
+                        {
+                            RequestData nestedRequestData = GetPopulatedProperties(item);
+
+                            nestedOutput.Add(nestedRequestData);
+                        }
+                        output.Add(PropertyCasingHelper.CamelToSnake(property.Name), nestedOutput);
+                    }
                     else
                     {
                         output.Add(PropertyCasingHelper.CamelToSnake(property.Name), property.GetValue(obj, null));
                     }
-
                 }
             }
             return output;

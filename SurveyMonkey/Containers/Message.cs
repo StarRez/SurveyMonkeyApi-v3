@@ -18,5 +18,6 @@ namespace SurveyMonkey.Containers
         public bool? IsScheduled { get; set; }
         public RecipientStatus? RecipientStatus { get; set; }
         public DateTime? ScheduledDate { get; set; }
+        public string EditMessageLink { get; set; }
     }
 }

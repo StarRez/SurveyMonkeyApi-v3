@@ -30,8 +30,18 @@ namespace SurveyMonkey
             set { _webClient.Proxy = value; }
         }
 
+        public WebHeaderCollection ResponseHeaders
+        {
+            get { return _webClient.ResponseHeaders; }
+        }
+
         public SurveyMonkeyApi(string accessToken)
             : this(null, accessToken, null, null, null)
+        {
+        }
+
+        internal SurveyMonkeyApi(string accessToken, IWebClient webClient)
+            : this(null, accessToken, null, null, webClient)
         {
         }
 
@@ -69,7 +79,6 @@ namespace SurveyMonkey
             : this(apiKey, accessToken, rateLimitDelay, retrySequence, null)
         {
         }
-
 
         internal SurveyMonkeyApi(string apiKey, string accessToken, IWebClient webClient)
             : this(apiKey, accessToken, 0, null, webClient)
@@ -171,7 +180,7 @@ namespace SurveyMonkey
                         }
                         catch (Exception e)
                         {
-                            if(e is WebException)
+                            if (e is WebException)
                             {
                                 throw;
                             }
@@ -214,7 +223,7 @@ namespace SurveyMonkey
                 var requestData = RequestSettingsHelper.GetPopulatedProperties(settings);
                 return PageRequest(url, requestData, type);
             }
-            
+
             var results = new List<IPageableContainer>();
             bool cont = true;
             int page = 1;
@@ -242,7 +251,7 @@ namespace SurveyMonkey
             var verb = Verb.GET;
             JToken result = MakeApiRequest(url, verb, requestData);
             var results = result["data"].ToObject(type);
-            return (IEnumerable<IPageableContainer>) results;
+            return (IEnumerable<IPageableContainer>)results;
         }
 
         private void ResetWebClient()

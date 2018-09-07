@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using SurveyMonkey.Containers;
 using SurveyMonkey.Helpers;
 using SurveyMonkey.RequestSettings;
 
 namespace SurveyMonkeyTests
 {
     [TestFixture]
-    class RequestSettingsHelperTests
+    internal class RequestSettingsHelperTests
     {
         [Test]
         public void ObjectPropertiesAreProcessed()
@@ -24,8 +25,49 @@ namespace SurveyMonkeyTests
                 ListTime1 = new List<DateTime> { new DateTime(2015, 4, 2, 10, 19, 12, DateTimeKind.Utc) },
                 ListString1 = new List<string> { "asdf", "ghjk", "qwer" },
                 ListInt1 = new List<int> { 1, 5, 0, 94 },
-                ListLong1 = new List<long> { 42, 918274828787344, 9827, 5219258, 51928375123857 }
-
+                ListLong1 = new List<long> { 42, 918274828787344, 9827, 5219258, 51928375123857 },
+                ComplexObject = new ComplexObject
+                {
+                    Time1 = new DateTime(2016, 5, 1, 12, 30, 18, DateTimeKind.Utc),
+                    String1 = "A string",
+                    Int1 = 1234,
+                    Long1 = 3216549874654984,
+                    EnumCamel1 = GetSurveyListSettings.SortByOption.NumResponses,
+                    EnumCaps1 = GetSurveyListSettings.SortOrderOption.DESC,
+                    ListTime1 = new List<DateTime> { new DateTime(2015, 4, 2, 10, 19, 12, DateTimeKind.Utc) },
+                    ListString1 = new List<string> { "asdf", "ghjk", "qwer" },
+                    ListInt1 = new List<int> { 1, 5, 0, 94 },
+                    ListLong1 = new List<long> { 42, 918274828787344, 9827, 5219258, 51928375123857 }
+                },
+                ListComplexObject = new List<ComplexObject>
+                {
+                    new ComplexObject
+                    {
+                        Time1 = new DateTime(2016, 5, 1, 12, 30, 18, DateTimeKind.Utc),
+                        String1 = "A string",
+                        Int1 = 1234,
+                        Long1 = 3216549874654984,
+                        EnumCamel1 = GetSurveyListSettings.SortByOption.NumResponses,
+                        EnumCaps1 = GetSurveyListSettings.SortOrderOption.DESC,
+                        ListTime1 = new List<DateTime> { new DateTime(2015, 4, 2, 10, 19, 12, DateTimeKind.Utc) },
+                        ListString1 = new List<string> { "asdf", "ghjk", "qwer" },
+                        ListInt1 = new List<int> { 1, 5, 0, 94 },
+                        ListLong1 = new List<long> { 42, 918274828787344, 9827, 5219258, 51928375123857 }
+                    },
+                    new ComplexObject
+                    {
+                        Time1 = new DateTime(2016, 5, 1, 12, 30, 18, DateTimeKind.Utc),
+                        String1 = "A string 1",
+                        Int1 = 12345,
+                        Long1 = 3216549874654984,
+                        EnumCamel1 = GetSurveyListSettings.SortByOption.NumResponses,
+                        EnumCaps1 = GetSurveyListSettings.SortOrderOption.DESC,
+                        ListTime1 = new List<DateTime> { new DateTime(2015, 4, 2, 10, 19, 12, DateTimeKind.Utc) },
+                        ListString1 = new List<string> { "asdf", "ghjk", "qwer" },
+                        ListInt1 = new List<int> { 1, 5, 0, 94 },
+                        ListLong1 = new List<long> { 42, 918274828787344, 9827, 5219258, 51928375123857 }
+                    }
+                }
             };
             var result = RequestSettingsHelper.GetPopulatedProperties(input);
             Assert.AreEqual("2016-05-01T12:30:18", result["time_1"]);
@@ -38,7 +80,39 @@ namespace SurveyMonkeyTests
             Assert.AreEqual("qwer", ((List<string>)result["list_string_1"]).Last());
             Assert.AreEqual(94, ((List<int>)result["list_int_1"]).Last());
             Assert.AreEqual("918274828787344", ((List<string>)result["list_long_1"]).Skip(1).First());
-            Assert.AreEqual(10, result.Count);
+            Assert.AreEqual(51928375123857, ((ComplexObject)result["complex_object"]).ListLong1.Last());
+            Assert.AreEqual(1234, ((((List<RequestData>)result["list_complex_object"]).First())["int_1"]));
+            Assert.AreEqual(12, result.Count);
+        }
+
+        [Test]
+        public void BulkRecipientResponseSettingsAreProcessed()
+        {
+            var input = new BulkRecipientSettings()
+            {
+                Contacts = new List<Contact>
+                {
+                    new Contact()
+                    {
+                        FirstName = "First",
+                        LastName = "Last",
+                        Email = "email"
+                    },
+                    new Contact()
+                    {
+                        FirstName = "First2",
+                        LastName = "Last2",
+                        Email = "email2"
+                    }
+                }
+            };
+            var result = RequestSettingsHelper.GetPopulatedProperties(input);
+            Assert.AreEqual("First", ((List<RequestData>)result["contacts"])[0]["first_name"]);
+            Assert.AreEqual("Last", ((List<RequestData>)result["contacts"])[0]["last_name"]);
+            Assert.AreEqual("email", ((List<RequestData>)result["contacts"])[0]["email"]);
+            Assert.AreEqual("First2", ((List<RequestData>)result["contacts"])[1]["first_name"]);
+            Assert.AreEqual("Last2", ((List<RequestData>)result["contacts"])[1]["last_name"]);
+            Assert.AreEqual("email2", ((List<RequestData>)result["contacts"])[1]["email"]);
         }
     }
 
@@ -64,5 +138,21 @@ namespace SurveyMonkeyTests
         public List<int> ListInt2 { get; set; }
         public List<long> ListLong1 { get; set; }
         public List<long> ListLong2 { get; set; }
+        public ComplexObject ComplexObject { get; set; }
+        public List<ComplexObject> ListComplexObject { get; set; }
+    }
+
+    internal class ComplexObject
+    {
+        public DateTime? Time1 { get; set; }
+        public string String1 { get; set; }
+        public int? Int1 { get; set; }
+        public long? Long1 { get; set; }
+        public GetSurveyListSettings.SortByOption? EnumCamel1 { get; set; }
+        public GetSurveyListSettings.SortOrderOption? EnumCaps1 { get; set; }
+        public List<DateTime> ListTime1 { get; set; }
+        public List<string> ListString1 { get; set; }
+        public List<int> ListInt1 { get; set; }
+        public List<long> ListLong1 { get; set; }
     }
 }

@@ -9,7 +9,7 @@ using SurveyMonkey;
 
 namespace SurveyMonkeyTests
 {
-    class MockWebClient : IWebClient
+    internal class MockWebClient : IWebClient
     {
         public List<MockWebClientRequest> Requests { get; set; }
         public List<string> Responses { get; set; }
@@ -20,6 +20,7 @@ namespace SurveyMonkeyTests
         public MockWebClient()
         {
             Headers = new WebHeaderCollection();
+            ResponseHeaders = new WebHeaderCollection();
             QueryString = new NameValueCollection();
             Requests = new List<MockWebClientRequest>();
             Responses = new List<string>();
@@ -33,6 +34,7 @@ namespace SurveyMonkeyTests
                 TimeSinceInitialisation = _stopwatch.ElapsedMilliseconds,
                 Encoding = Encoding,
                 Headers = Headers,
+                ResponseHeaders = ResponseHeaders,
                 QueryString = QueryString,
                 Url = url,
                 Verb = verb,
@@ -55,6 +57,7 @@ namespace SurveyMonkeyTests
         #region Interface
 
         public WebHeaderCollection Headers { get; set; }
+        public WebHeaderCollection ResponseHeaders { get; set; }
         public NameValueCollection QueryString { get; set; }
         public Encoding Encoding { get; set; }
         public IWebProxy Proxy { get; set; }
@@ -75,6 +78,6 @@ namespace SurveyMonkeyTests
         {
         }
 
-        #endregion
+        #endregion Interface
     }
 }

@@ -111,7 +111,7 @@ namespace SurveyMonkey
             var page = result.ToObject<Page>();
             return page;
         }
-        
+
         public List<Question> GetQuestionList(long surveyId, long pageId)
         {
             var settings = new PagingSettings();
@@ -138,6 +138,16 @@ namespace SurveyMonkey
             JToken result = MakeApiRequest(endPoint, verb, new RequestData());
             var question = result.ToObject<Question>();
             return question;
+        }
+
+        public SendSurveyResponse SendSurvey(long collectorId, long messageId, SendSurveySettings settings)
+        {
+            string endPoint = String.Format("/collectors/{0}/messages/{1}/send", collectorId, messageId);
+            var verb = Verb.POST;
+            var requestData = Helpers.RequestSettingsHelper.GetPopulatedProperties(settings);
+            JToken result = MakeApiRequest(endPoint, verb, requestData);
+            var response = result.ToObject<SendSurveyResponse>();
+            return response;
         }
     }
 }

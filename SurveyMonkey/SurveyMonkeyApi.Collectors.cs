@@ -97,7 +97,27 @@ namespace SurveyMonkey
         {
             return GetRecipientListPager(collectorId, null, settings);
         }
-        
+
+        public Message CreateMessage(long collectorId, CreateNewMessageSettings settings)
+        {
+            string endPoint = String.Format("/collectors/{0}/messages", collectorId);
+            var verb = Verb.POST;
+            var requestData = Helpers.RequestSettingsHelper.GetPopulatedProperties(settings);
+            JToken result = MakeApiRequest(endPoint, verb, requestData);
+            var message = result.ToObject<Message>();
+            return message;
+        }
+
+        public BulkRecipientResponse AddRecipientsToMessage(long collectorId, long messageId, BulkRecipientSettings settings)
+        {
+            string endPoint = String.Format("/collectors/{0}/messages/{1}/recipients/bulk", collectorId, messageId);
+            var verb = Verb.POST;
+            var requestData = Helpers.RequestSettingsHelper.GetPopulatedProperties(settings);
+            JToken result = MakeApiRequest(endPoint, verb, requestData);
+            var response = result.ToObject<BulkRecipientResponse>();
+            return response;
+        }
+
         public List<Recipient> GetMessageRecipientList(long collectorId, long messageId)
         {
             var settings = new GetRecipientListSettings();
